@@ -30,9 +30,7 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm test
-      - name: npm run build
-        run: |
-          npm run build
+      - run: npm run build
       - name: nodejs project information
         id: projectinfo
         uses: gregoranders/nodejs-project-info@master
@@ -62,6 +60,7 @@ jobs:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
+      - run: npm run build
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
