@@ -53,12 +53,12 @@ export class TTMLParser {
     const duration = parseTime(
       ttml.querySelector('body')?.getAttribute('dur') || ''
     );
-    const timelines: LyricArgs['timelines'] = new Map();
+    const timelines: LyricArgs['timelines'] = [];
     const paragraphs = ttml.querySelectorAll('div');
 
-    paragraphs.forEach((paragraphElm, paragraphIndex) => {
+    paragraphs.forEach((paragraphElm) => {
       const { lineTimelines } = this.parseParagraphTimelines(paragraphElm);
-      timelines.set(paragraphIndex + 1, lineTimelines);
+      timelines.push(lineTimelines);
     });
 
     const lyric = new Lyric({
@@ -79,11 +79,11 @@ export class TTMLParser {
       throw new Error('Invalid TTML format');
     }
     const lines = paragraphElm.querySelectorAll('p');
-    const lineTimelines: ParagraphArgs['timelines'] = new Map();
+    const lineTimelines: ParagraphArgs['timelines'] = [];
 
-    lines.forEach((lineElm, lineIndex) => {
+    lines.forEach((lineElm) => {
       const { wordTimelines } = this.parseLineTimelines(lineElm);
-      lineTimelines.set(lineIndex + 1, wordTimelines);
+      lineTimelines.push(wordTimelines);
     });
 
     return {
@@ -98,7 +98,7 @@ export class TTMLParser {
       throw new Error('Invalid TTML format');
     }
 
-    const wordTimelines: LineArgs['timelines'] = new Map();
+    const wordTimelines: LineArgs['timelines'] = [];
     const { begin, end } = getTime(lineElm);
 
     const timingType =
@@ -125,7 +125,7 @@ export class TTMLParser {
           text,
           hasWhitespace: wordIndex !== texts.length - 1,
         };
-        wordTimelines.set(position, wordTimeline);
+        wordTimelines.push(wordTimeline);
       });
 
       return {
@@ -139,7 +139,7 @@ export class TTMLParser {
       wordTimelines: LineArgs['timelines'];
     }>(
       (acc, spanElm, wordIndex) => {
-        const last = acc.wordTimelines.get(acc.wordTimelines.size);
+        const last = acc.wordTimelines[acc.wordTimelines.length - 1];
         const { begin, end } = getTime(spanElm);
         const beforeElm = spans[wordIndex - 1];
         const { end: beforeEnd } = beforeElm
@@ -155,7 +155,7 @@ export class TTMLParser {
             hasWhitespace ? ' ' : ''
           }`,
         };
-        acc.wordTimelines.set(1, wordTimeline);
+        acc.wordTimelines[0] = wordTimeline;
         return acc;
       },
       { wordTimelines }
