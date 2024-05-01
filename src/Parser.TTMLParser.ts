@@ -38,18 +38,18 @@ const TIMING_TYPE = {
 } as const;
 
 export class TTMLParser {
-  tokenizer?: (lineArgs: LineArgs) => Map<number, LineArgs>;
+  tokenizer?: LyricArgs['tokenizer'];
   offsetSec?: number;
 
   constructor(props?: {
-    tokenizer?: (lineArgs: LineArgs) => Map<number, LineArgs>;
+    tokenizer?: LyricArgs['tokenizer'];
     offsetSec?: number;
   }) {
     this.tokenizer = props ? props.tokenizer : undefined;
     this.offsetSec = props ? props.offsetSec : undefined;
   }
 
-  public parse(ttml: XMLDocument, resourceID: string): Lyric {
+  public async parse(ttml: XMLDocument, resourceID: string) {
     const duration = parseTime(
       ttml.querySelector('body')?.getAttribute('dur') || ''
     );
@@ -61,13 +61,13 @@ export class TTMLParser {
       timelines.push(lineTimelines);
     });
 
-    const lyric = new Lyric({
+    const lyric = await new Lyric({
       resourceID,
       duration,
       timelines,
       tokenizer: this.tokenizer,
       offsetSec: this.offsetSec,
-    });
+    }).init();
 
     return lyric;
   }
