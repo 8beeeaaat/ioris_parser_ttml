@@ -114,18 +114,11 @@ export class TTMLParser {
           wordTimelines,
         };
       }
-      const texts = lineElm.textContent.split(' ');
-      const durationByWord = (end - begin) / texts.length;
 
-      texts.forEach((text, wordIndex) => {
-        const position = wordIndex + 1;
-        const wordTimeline: WordTimeline = {
-          begin: begin + durationByWord * wordIndex,
-          end: begin + durationByWord * position,
-          text,
-          hasWhitespace: wordIndex !== texts.length - 1,
-        };
-        wordTimelines.push(wordTimeline);
+      wordTimelines.push({
+        begin,
+        end,
+        text: lineElm.textContent,
       });
 
       return {
