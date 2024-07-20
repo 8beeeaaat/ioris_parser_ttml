@@ -1,10 +1,4 @@
-import {
-  LineArgs,
-  Lyric,
-  LyricArgs,
-  ParagraphArgs,
-  WordTimeline,
-} from '@ioris/core';
+import { LineCreateArgs, Lyric, LyricCreateArgs, ParagraphCreateArgs } from '@ioris/core';
 
 const isElementNode = (n: Node) => Node.ELEMENT_NODE === n.nodeType;
 
@@ -38,11 +32,11 @@ const TIMING_TYPE = {
 } as const;
 
 export class TTMLParser {
-  tokenizer?: LyricArgs['tokenizer'];
+  tokenizer?: LyricCreateArgs['tokenizer'];
   offsetSec?: number;
 
   constructor(props?: {
-    tokenizer?: LyricArgs['tokenizer'];
+    tokenizer?: LyricCreateArgs['tokenizer'];
     offsetSec?: number;
   }) {
     this.tokenizer = props ? props.tokenizer : undefined;
@@ -53,7 +47,7 @@ export class TTMLParser {
     const duration = parseTime(
       ttml.querySelector('body')?.getAttribute('dur') || ''
     );
-    const timelines: LyricArgs['timelines'] = [];
+    const timelines: LyricCreateArgs['timelines'] = [];
     const paragraphs = ttml.querySelectorAll('div');
 
     paragraphs.forEach((paragraphElm) => {
@@ -73,13 +67,13 @@ export class TTMLParser {
   }
 
   private parseParagraphTimelines(paragraphElm: HTMLDivElement): {
-    lineTimelines: ParagraphArgs['timelines'];
+    lineTimelines: ParagraphCreateArgs['timelines'];
   } {
     if (!isElementNode(paragraphElm) || !confirmTag('div')(paragraphElm)) {
       throw new Error('Invalid TTML format');
     }
     const lines = paragraphElm.querySelectorAll('p');
-    const lineTimelines: ParagraphArgs['timelines'] = [];
+    const lineTimelines: ParagraphCreateArgs['timelines'] = [];
 
     lines.forEach((lineElm) => {
       const { wordTimelines } = this.parseLineTimelines(lineElm);
@@ -92,13 +86,13 @@ export class TTMLParser {
   }
 
   private parseLineTimelines(lineElm: HTMLParagraphElement): {
-    wordTimelines: LineArgs['timelines'];
+    wordTimelines: LineCreateArgs['timelines'];
   } {
     if (!isElementNode(lineElm) || !confirmTag('p')(lineElm)) {
       throw new Error('Invalid TTML format');
     }
 
-    const wordTimelines: LineArgs['timelines'] = [];
+    const wordTimelines: LineCreateArgs['timelines'] = [];
     const { begin, end } = getTime(lineElm);
 
     const timingType =
@@ -129,7 +123,7 @@ export class TTMLParser {
     const spans = Array.from(lineElm.querySelectorAll('span'));
 
     return spans.reduce<{
-      wordTimelines: LineArgs['timelines'];
+      wordTimelines: LineCreateArgs['timelines'];
     }>(
       (acc, spanElm, wordIndex) => {
         const last = acc.wordTimelines[acc.wordTimelines.length - 1];
@@ -141,14 +135,12 @@ export class TTMLParser {
         const hasWhitespace =
           beforeEnd - begin > 0.1 ||
           (spanElm.nextSibling !== null && spanElm.nextSibling.nodeType === 3);
-        const wordTimeline: WordTimeline = {
+        acc.wordTimelines[0] = {
           begin: last?.begin || begin,
           end,
-          text: `${last?.text || ''}${spanElm.textContent}${
-            hasWhitespace ? ' ' : ''
-          }`,
+          text: `${last?.text || ''}${spanElm.textContent}${hasWhitespace ? ' ' : ''
+            }`,
         };
-        acc.wordTimelines[0] = wordTimeline;
         return acc;
       },
       { wordTimelines }
