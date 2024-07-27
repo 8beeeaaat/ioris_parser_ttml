@@ -3,13 +3,15 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default [
+  {
+    ignores: ['**/node_modules/', '**/dist/'],
+  },
   eslint.configs.recommended,
   tseslint.configs.eslintRecommended,
   ...tseslint.configs.recommended,
   {
-    languageOptions: { globals: globals.browser },
     files: ['**/*.*js', '**/*.ts*'],
-    ignores: ['**/node_modules/', '**/dist/'],
+    languageOptions: { globals: globals.browser },
     linterOptions: {
       noInlineConfig: true
     },
