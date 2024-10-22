@@ -1,1 +1,1 @@
-export * from './Parser.TTMLParser';
+export * from "./Parser.TTMLParser";
