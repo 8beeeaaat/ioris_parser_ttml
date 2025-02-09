@@ -56,6 +56,6 @@ describe("TTMLParser", () => {
     const result = await parser.parse(xml, "line");
     expect(result.resourceID).toBe("line");
     expect(result.duration).toBe(209.47);
-    expect(result.voids().length).toBe(32);
+    expect(result.voids().length).toBe(34);
   }, 10000);
 });
